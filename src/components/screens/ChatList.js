@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import ChatListData from "../../data/ChatListData";
 import styled from "styled-components";
 import { Link, NavLink } from "react-router-dom";
+import ChatBox from "./ChatBox";
+import ChatDetails from "./ChatDetails";
+import SearchIconSvg from '../../assets/icons/zoom-lens_1.svg'
 
 function ChatList() {
   let ChatProfile = () => {
@@ -34,15 +37,42 @@ function ChatList() {
       </ProfileDiv>
     ));
   };
-  return <MainList>{ChatProfile()}</MainList>;
-}
+  return (
+    <>
+    <UserListSection>
+    <SearchDiv>
+        <SearchIconDiv>
+          <SearchIcon src={SearchIconSvg} alt='searchicon' />
+        </SearchIconDiv>
+        <SearchInput type='text' placeholder="Search" />
+      </SearchDiv>
+    <MainList>
+      
+      {ChatProfile()}
+    </MainList>
+    </UserListSection>
+    
+      <ChatBox />
+      <ChatDetails />
 
-const MainList = styled.section`
-  background-color: #202329;
-  overflow-y: scroll;
+    </>
+    
+
+  );
+}
+const UserListSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   border-bottom-left-radius: 20px;
   border-top-left-radius: 20px;
-  width: 80%;
+  background-color: #202329;
+
+`;
+const MainList = styled.div`
+  overflow-y: scroll;
+  height: 85%;
+  /* padding: 20px; */
   &::-webkit-scrollbar {
     display: none;
   }
@@ -111,5 +141,32 @@ const Count = styled.p`
   color: white;
   font-weight: bold;
 `;
+
+const SearchDiv = styled.div`
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 20px;
+`;
+const SearchIconDiv = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 5px;
+  width: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+const SearchIcon = styled.img`
+`;
+const SearchInput = styled.input`
+  width: 100%;
+  height: 30px;
+  padding-left: 30px;
+`;
+
+
+
 
 export default ChatList;

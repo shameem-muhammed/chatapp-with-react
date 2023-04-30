@@ -11,8 +11,6 @@ function ChatAppBase() {
         <MainContainer>
             <SideBar/>
             <ChatList/>
-            <ChatBox/>
-            <ChatDetails/>
         </MainContainer>
         
 
@@ -24,6 +22,7 @@ const MainContainer = styled.section`
     display: flex;
     height: 100vh;
     background-color: #131313;
+    /* overflow-y: hidden; */
 `
 
 export default ChatAppBase

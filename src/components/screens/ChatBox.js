@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import LenIcon from '../../assets/icons/zoom-lens_1.svg'
 import CallIcon from '../../assets/icons/call_1.svg'
 import SplitIcon from '../../assets/icons/layout.svg'
@@ -7,9 +7,74 @@ import SeenedIcon from '../../assets/icons/see.svg'
 import PaperClipIcon from '../../assets/icons/paper-clip.svg'
 import MicIcon from '../../assets/icons/mic.svg'
 import styled from 'styled-components'
+import song from '../../assets/audio/audio-one.m4a'
+import WaveSurfer from "wavesurfer.js";
+import AudioPlayer from '../includes/WaveForm'
+
 
 
 function ChatBox() {
+
+    let [isPlaying, setIsPlaying] = useState(false)
+    let [waveSurfer, setWaveSurfer] = useState(null)
+    let [audioDur, setAudioDur] = useState()
+    let [fileSize, setFileSize] = useState()
+
+    useEffect(() => {
+        fetch(song)
+          .then(response => response.blob())
+          .then(blob => setFileSize(blob.size / 1024 /1024))
+          .catch(error => console.log(error));
+    }, []);
+
+    useEffect(() => {
+        let surfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: 'red',
+            progressColor: 'white',
+            hideScrollbar: true,
+            height: 50,
+            fillParent: true,
+            barWidth: 4,
+            barGap: 1,
+            })
+        setWaveSurfer(surfer)
+    }, [])
+
+    useEffect(() => {
+        if(waveSurfer) {
+            
+            waveSurfer.load(song) 
+
+        }
+
+        
+
+        
+    }, [waveSurfer])
+
+    if (waveSurfer) {
+        waveSurfer.on('finish', function(){
+            setIsPlaying(false)
+            waveSurfer.stop()
+        })
+
+        waveSurfer.on('ready', function(){
+            let time = waveSurfer.getDuration()
+            time = time / 60
+            setAudioDur(Math.round(time * 100)/100)
+
+        })
+    }
+
+
+    const togglePlayPause = () => {
+        waveSurfer.playPause()
+        setIsPlaying(!isPlaying)
+        
+        
+      }
+
   return (
     <MainContainer>
         <TopSection>
@@ -34,7 +99,7 @@ function ChatBox() {
         </TopSection>
         <ChatBoxSection>
         <ChatUl>
-                <ChatItem>
+        <ChatItem>
                     <LeftProfileSection>
                         <ProfileDiv>
                             <Profile src={require('../../assets/icons/man.png')} alt='profile'/>
@@ -52,9 +117,24 @@ function ChatBox() {
                                     <ReactEmojiDiv>
                                         <ReactEmoji src={require('../../assets/icons/emoji.png')} alt='emoji' />
                                     </ReactEmojiDiv>
-                                    <ProfileAvatarDiv>
-                                        <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
-                                    </ProfileAvatarDiv>
+                                    <ReactedProfilesUl>
+                                        <ProfileReactionLi>
+                                            <ProfileAvatarDiv>
+                                                <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
+                                            </ProfileAvatarDiv>
+                                        </ProfileReactionLi>
+
+                                        <ProfileReactionLi>
+                                            <ProfileAvatarDiv>
+                                                <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
+                                            </ProfileAvatarDiv>
+                                        </ProfileReactionLi>
+                                        <ProfileReactionLi>
+                                            <ProfileAvatarDiv>
+                                                <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
+                                            </ProfileAvatarDiv>
+                                        </ProfileReactionLi>
+                                    </ReactedProfilesUl>
                                 </Reaction>
                                 <Reaction>
                                     <ReactEmojiDiv>
@@ -79,28 +159,60 @@ function ChatBox() {
                         </MessageStatusDiv>
                     </RightMessageSection>
                 </ChatItem>
-
                 <ChatItem>
                     <LeftProfileSection>
-                        <ProfileDiv>
-                            <Profile src={require('../../assets/icons/man.png')} alt='profile'/>
-                        </ProfileDiv>
+                            <ProfileDiv>
+                                <Profile src={require('../../assets/icons/man.png')} alt='profile'/>
+                            </ProfileDiv>
                     </LeftProfileSection>
-                    <RightMessageSection>
-                        <ProfileName>Harry Fettei</ProfileName>
-                        <ChatImageDiv>
-                            <ChatImage src={require('../../assets/images/chat-box-img.jpg')} alt='image'/>
-                        </ChatImageDiv>
-                        <MessageStatusDiv>
+                    <RightMessageSection style={{backgroundColor: '#2e343d', padding: '10px', borderRadius: '20px 30px 20px 0'}}>
+                    <div>
+                        <div style={{display: 'flex', justifyContent: 'space-between', padding: '10px'}}>
+                            <div>
+                                <h4>Jenny Li</h4>
+                            </div>
+                            <div style={{display: 'flex'}}>
+                                <p>{audioDur},</p>
+                                <p>{Math.round(fileSize * 100) / 100} Mb</p>
+                            </div>
+                            
+                        </div>
+                        <div style={{display: 'flex', padding: '10px', alignItems: 'center'}}>
+                            <div onClick={() => togglePlayPause()} style={{width: '20px', padding: '10px', borderRadius: '50%', backgroundColor: '#6887ef', marginRight: '10px'}}>
+                                {isPlaying ? <img src={require('../../assets/icons/pause.png')} alt="play/puase" /> : <img src={require('../../assets/icons/play-button-arrowhead.png')} alt="play/puase" /> }
+                                
+                            </div>
+                            <div style={{flex: 1}}>
+                                <div style={{width: '300px'}}  id='waveform'></div> 
+
+                            </div>
+                        </div> 
+                    </div> 
+                    <MessageStatusDiv>
                             <LeftBottomSection>
                             <ReactedList>
                                 <Reaction>
                                     <ReactEmojiDiv>
                                         <ReactEmoji src={require('../../assets/icons/emoji.png')} alt='emoji' />
                                     </ReactEmojiDiv>
-                                    <ProfileAvatarDiv>
-                                        <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
-                                    </ProfileAvatarDiv>
+                                    <ReactedProfilesUl>
+                                        <ProfileReactionLi>
+                                            <ProfileAvatarDiv>
+                                                <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
+                                            </ProfileAvatarDiv>
+                                        </ProfileReactionLi>
+
+                                        <ProfileReactionLi>
+                                            <ProfileAvatarDiv>
+                                                <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
+                                            </ProfileAvatarDiv>
+                                        </ProfileReactionLi>
+                                        <ProfileReactionLi>
+                                            <ProfileAvatarDiv>
+                                                <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
+                                            </ProfileAvatarDiv>
+                                        </ProfileReactionLi>
+                                    </ReactedProfilesUl>
                                 </Reaction>
                                 <Reaction>
                                     <ReactEmojiDiv>
@@ -124,52 +236,7 @@ function ChatBox() {
 
                         </MessageStatusDiv>
                     </RightMessageSection>
-                </ChatItem>
-
-                <ChatItem>
-                    <LeftProfileSection>
-                        <ProfileDiv>
-                            <Profile src={require('../../assets/icons/man.png')} alt='profile'/>
-                        </ProfileDiv>
-                    </LeftProfileSection>
-                    <RightMessageSection>
-                        <ProfileName>Harry Fettei</ProfileName>
-                        <ChatImageDiv>
-                            <ChatImage src={require('../../assets/images/chat-box-img.jpg')} alt='image'/>
-                        </ChatImageDiv>
-                        <MessageStatusDiv>
-                            <LeftBottomSection>
-                            <ReactedList>
-                                <Reaction>
-                                    <ReactEmojiDiv>
-                                        <ReactEmoji src={require('../../assets/icons/emoji.png')} alt='emoji' />
-                                    </ReactEmojiDiv>
-                                    <ProfileAvatarDiv>
-                                        <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
-                                    </ProfileAvatarDiv>
-                                </Reaction>
-                                <Reaction>
-                                    <ReactEmojiDiv>
-                                        <ReactEmoji src={require('../../assets/icons/star.png')} alt='emoji' />
-                                    </ReactEmojiDiv>
-                                    <ProfileAvatarDiv>
-                                        <ProfileAvatar src={require('../../assets/icons/man.png')} alt='avatar'/>
-                                    </ProfileAvatarDiv>
-                                </Reaction>
-                            </ReactedList>
-                            </LeftBottomSection>
-                            <RightBottomSection>
-                                <SeenCountDiv>
-                                    <SeenIconDiv>
-                                        <SeenIcon src={SeenedIcon} alt='seen'/>
-                                    </SeenIconDiv>
-                                    <SeenCount>3</SeenCount>
-                                </SeenCountDiv>
-                                <SendTime>08:57</SendTime>
-                            </RightBottomSection>
-
-                        </MessageStatusDiv>
-                    </RightMessageSection>
+                    
                 </ChatItem>
             </ChatUl>
         </ChatBoxSection>
@@ -192,13 +259,15 @@ function ChatBox() {
         </SendInputMessageSection>
     </MainContainer>
   )
+
+  
 }
 
 const MainContainer = styled.section`
     padding: 10px 30px;
     background-color: #202329;
     color: white;
-    width: 100%;
+    width: 60%;
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     
@@ -250,6 +319,8 @@ const ChatUl = styled.ul`
 `;
 const ChatItem = styled.li`
     display: flex;
+    margin-bottom: 30px;
+
 `;
 const LeftProfileSection = styled.div`
     display: flex;
@@ -298,8 +369,24 @@ const ReactEmojiDiv = styled.div`
     margin-right: 5px;
 `;
 const ReactEmoji = styled(Profile)``;
+const ReactedProfilesUl = styled.ul`
+    list-style: none;
+    display: flex;
+    
+    
+`;
+
+const ProfileReactionLi = styled.li`
+    border: 2px solid black;
+    border-radius: 50%;
+    &:not(:first-child) {
+        right: 8px;
+        
+    }
+`;
 const ProfileAvatarDiv = styled.div`
     width: 15px;
+    
 `;
 const ProfileAvatar = styled(Profile)``;
 const RightBottomSection = styled.div`

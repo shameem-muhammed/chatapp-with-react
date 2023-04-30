@@ -9,7 +9,7 @@ function ChatDetails() {
 
 const MainContainer = styled.section`
     background-color: #131313;
-    width: 70%;
+    width: 20%;
 `;
 
 export default ChatDetails
