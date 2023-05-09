@@ -4,11 +4,12 @@ const ChatListData = [
     {
         id: 1,
         avatar: require('../assets/icons/man.png'),
-        name: 'shameem',
+        name: 'Office chat',
         lastMessage: 'Our company needs to prepare',
         pinned: true,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 5
     },
 
     {
@@ -18,7 +19,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: true,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 10
     },
 
     {
@@ -28,7 +30,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: true,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 
     {
@@ -38,7 +41,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: false,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 
     {
@@ -48,7 +52,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: false,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 
     {
@@ -58,7 +63,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: false,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 
     {
@@ -68,7 +74,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: false,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 
     {
@@ -78,7 +85,8 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: false,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 
     
@@ -89,8 +97,12 @@ const ChatListData = [
         lastMessage: 'Our company needs to prepare',
         pinned: false,
         pinnedImage: PinImage,
-        isActive: false
+        isActive: false,
+        incomingmsgcount: 0
     },
 ]
 
-export default ChatListData
+
+
+export default ChatListData;
+

@@ -20,10 +20,13 @@ function ChatList() {
           </NameDiv>
           <IncommingDiv>
             <LastMeassageTime>4 m</LastMeassageTime>
+            
             <MessageCountDiv>
+            {item.incomingmsgcount != 0 ? (
               <MessageCount>
-                <Count>5</Count>
+                <Count>{item.incomingmsgcount}</Count>
               </MessageCount>
+            ): ''}
               <PinnedDiv>
                 {item.pinned ? (
                   <PinnedIcon src={item.pinnedImage} alt="" />

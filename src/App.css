@@ -47,7 +47,11 @@ img {
   display: block;
 }
 
+button {
+  cursor: pointer;
+}
 
-#waveform > wave:nth-child(1) {
+
+#waveform > wave:not(:nth-child(2)) {
   display: none !important;
 }
