@@ -20,6 +20,8 @@ const ChatMessages = [
         message: require('../assets/audio/audio-one.m4a'),
         viewed: 3,
         sendtime: '08:57',
+        wave: null,
+        isPlaying: false,
         
     },
 
@@ -53,6 +55,8 @@ const ChatMessages = [
         message: require('../assets/audio/audio-2.mp3'),
         viewed: 3,
         sendtime: '08:57',
+        wave: null,
+        isPlaying: false,
         
     },
 

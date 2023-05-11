@@ -8,7 +8,7 @@ import UnSeenIcon from '../../assets/icons/invisible.svg'
 import Settingsicon from '../../assets/icons/settings.svg'
 
 
-function SideBar() {
+function SideBar({chatFilter}) {
   return (
     <MainContainer>
         <SectionTop>
@@ -17,19 +17,19 @@ function SideBar() {
             </LogoDiv>
             <NavigationDiv>
                 <IconDiv>
-                    <Button onClick={() => console.log('all chat clicked')} >
+                    <Button onClick={() => chatFilter('all')} >
                         <AllChatLogo src={AllChat} />
                         <SubText>All chats</SubText>
                     </Button>
                 </IconDiv>
                 <IconDiv>
-                    <Button onClick={() => console.log('seen clicked')}>
+                    <Button onClick={() => chatFilter('seend')}>
                         <SeenedLogo src={SeenIcon} />
                         <SubText>Seened</SubText>
                     </Button>
                 </IconDiv>
                 <IconDiv>
-                    <Button onClick={() => console.log('unseen clicked')}>
+                    <Button onClick={() => chatFilter('unseen')}>
                         <UnSeenedLogo src={UnSeenIcon} />
                         <SubText>Un seened</SubText>
                     </Button>

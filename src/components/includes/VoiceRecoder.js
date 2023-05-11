@@ -2,17 +2,16 @@ import React, { useState } from 'react';
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
 import ChatMessages from '../../data/ChatMessages';
 
-const ExampleComponent = () => {
+const ExampleComponent = ({ renderRecord, isRecord }) => {
   const recorderControls = useAudioRecorder()
   const addAudioElement = (blob) => {
     const url = URL.createObjectURL(blob);
     const audio = document.createElement("audio");
     audio.src = url;
 
-    console.log(audio.src)
 
     let newData = {
-            id: 7,
+            id: ChatMessages.length + 1,
             currentuser: true,
             user: 'Shameem',
             userprofile: require('../../assets/icons/man.png'),
@@ -23,9 +22,17 @@ const ExampleComponent = () => {
         }
 
         ChatMessages.push(newData)
+        renderRecord()
     // audio.controls = true;
     // document.body.appendChild(audio);
   };
+
+  if(recorderControls.isRecording) {
+    isRecord(true)
+  } else {
+    isRecord(false)
+
+  }
 
   return (
     <div>

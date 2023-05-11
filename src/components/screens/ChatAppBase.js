@@ -4,13 +4,15 @@ import ChatList from './ChatList'
 import ChatBox from './ChatBox'
 import ChatDetails from './ChatDetails'
 import SideBar from '../includes/SideBar'
+import { useState } from 'react'
 
 function ChatAppBase() {
+  const [chatType, setChatType] = useState('all')
   return (
     <>
         <MainContainer>
-            <SideBar/>
-            <ChatList/>
+            <SideBar chatFilter={(data) => {setChatType(data)}}/>
+            <ChatList chatConfig={chatType} />
         </MainContainer>
         
 

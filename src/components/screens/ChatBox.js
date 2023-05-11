@@ -15,55 +15,29 @@ import ChatMessages from '../../data/ChatMessages'
 import { Link } from 'react-router-dom'
 import ExampleComponent from '../includes/VoiceRecoder'
 import { type } from '@testing-library/user-event/dist/type'
+import WaveformComponent from '../includes/WaveForm'
 
 
 
-function ChatBox() {
+function ChatBox({selectedUser}) {
+    const [rerender, setRerender] = useState(false);
 
-    let [isPlaying, setIsPlaying] = useState(null)
-    let [waveSurfer, setWaveSurfer] = useState([])
-    let [audioDur, setAudioDur] = useState()
-    let [fileSize, setFileSize] = useState(0)
+    
 
     let [textMsg, setTextMsg] = useState('')
     let [load, setLoad] = useState(false)
+    let [record, setRecord] = useState(false)
 
     let [textRow, setTextRow] = useState(1)
     let [containerHieght, setContainerHieght] = useState(80)
 
-    useEffect(() => {
-
-        let filterVoiceData = ChatMessages.filter((audio) => audio.messagetype == 'voice')
-
-        const newWaveSurfers = [];
-        
-
-        filterVoiceData.map((data) => {
-            let surfer = WaveSurfer.create({
-                container: `#waveform${data.id}`,
-                waveColor: 'grey',
-                progressColor: 'white',
-                hideScrollbar: true,
-                height: 50,
-                fillParent: true,
-                barWidth: 4,
-                barGap: 1,
-            })
-
-            surfer.load(data.message)
-    
-            newWaveSurfers.push(surfer);
-        })
-        setWaveSurfer(newWaveSurfers)
-        
-    }, [])
 
 
     let handleClick = () => {
 
         
         let newData = {
-            id: 6,
+            id: ChatMessages.length + 1,
             currentuser: true,
             user: 'Shameem',
             userprofile: require('../../assets/icons/man.png'),
@@ -112,53 +86,24 @@ function ChatBox() {
     useEffect(() => {
         renderChats()
 
-        var element = document.getElementById('chatlist')
+        if(selectedUser !== null) {
+            var element = document.getElementById('chatlist')
 
-        element.scrollIntoView({block: "end"})
+            element.scrollIntoView({block: "end"})
+        }
+        
         
     }, [load])
 
     useEffect(() => {
-        var element = document.getElementById('chatlist')
-
-        element.scrollIntoView({block: "end"})
-    }, [waveSurfer])
+        renderChats()
+    }, [rerender])
 
 
-    if (waveSurfer) {
-        waveSurfer.map((data) => {
-            data.on('finish', function(){
-                setIsPlaying(null)
-                data.stop()
-            })
-
-            data.on('ready', function(){
-                let time = data.getDuration()
-                time = time / 60
-                setAudioDur(Math.round(time * 100)/100)
     
-            })
-        })
-    }
 
 
-    const togglePlayPause = (audioid) => {
-        if (isPlaying === audioid) {
-            // Pause the currently playing track
-            setIsPlaying(null);
-          } else {
-            // Play the clicked track
-            setIsPlaying(audioid);
-          }
-        waveSurfer.map((data) => {
-            if(data.container.id === audioid) {
-                data.playPause()
-            } else {
-                data.stop()
-            }
-
-        })     
-      }
+    
 
     let renderChats = () => {
         return ChatMessages.map((chat) => (
@@ -181,29 +126,10 @@ function ChatBox() {
                             </>
                             
                         ) : chat.messagetype == 'voice' ? (
-                            <VoiceMainContainer>
-                        <VoiceTopDiv>
-                            <ProfileNameDiv>
-                                <ProfileName>{chat.user}</ProfileName>
-                            </ProfileNameDiv>
-                            <AudioDetailDiv >
-                                <AudioTime>{waveSurfer.filter((data) => data.container.id === `waveform${chat.id}`).map((data) => (Math.round(data.getDuration() / 60 * 100)) / 100)},</AudioTime>
-                                <AudioSize>{fileSize} Mb</AudioSize>
-
-                            </AudioDetailDiv>
+                            <WaveformComponent audioUrl={chat.message} chatUserName={chat.user} audioId={chat.id} playFunc={chat.isPlaying} isPlayingFunc={() => {
+                                setRerender(!rerender)
+                            }} /> 
                             
-                        </VoiceTopDiv>  
-                        <VoiceBottomDiv>
-                            <VoicePlayBtnDiv  onClick={() => togglePlayPause(`waveform${chat.id}`)}>
-                                {isPlaying === `waveform${chat.id}` ? <PlayIcon src={require('../../assets/icons/pause.png')} alt="play/puase" /> : <PauseIcon src={require('../../assets/icons/play-button-arrowhead.png')} alt="play/puase" /> }
-                                
-                            </VoicePlayBtnDiv>
-                            <VoiceWaveDiv>
-                                <VoiceWave  id={`waveform${chat.id}`}></VoiceWave> 
-
-                            </VoiceWaveDiv>
-                        </VoiceBottomDiv> 
-                    </VoiceMainContainer> 
                         ): chat.messagetype == 'text' ? (
                             <VoiceMainContainer>
                         <ProfileName>{chat.user}</ProfileName>
@@ -282,11 +208,11 @@ function ChatBox() {
         ))
     }
 
-  return (
+  return selectedUser !== null ? (
     <MainContainer>
         <TopSection>
             <LeftSection>
-                <ChatName>office chat</ChatName>
+                <ChatName>{selectedUser.name}</ChatName>
                 <ChatStatus>46 members, 24 online</ChatStatus>
             </LeftSection>
             <RightSection>
@@ -320,19 +246,24 @@ function ChatBox() {
                 <SendMessageInput rows={textRow} type='text' value={textMsg} tabIndex='0' onKeyDown={handleKeyDown} onChange={(event) => onChangeTextarea(event)} placeholder='Your message'/>
                 <SendMessageIconDiv>
                     <SendMessageIconButton onClick={handleClick}>
-                        <SendMessageIconIcon src={SendIcon} alt='MessageIcon-icon' />
+                        {!record ? <SendMessageIconIcon src={SendIcon} alt='MessageIcon-icon' /> : null}
+                        
                     </SendMessageIconButton>
                 </SendMessageIconDiv>
                 <SendVoiceDiv>
                     {/* <SendVoiceButton>
                         <SendVoiceIcon src={MicIcon} alt='voice-icon' />
                     </SendVoiceButton> */}
-                    <ExampleComponent />
+                    <ExampleComponent renderRecord={() => {
+                        setLoad(!load)
+                    }} isRecord={(data) => {setRecord(data)}} />
                 </SendVoiceDiv>
             </SendMessageDiv>
             
         </SendInputMessageSection>
     </MainContainer>
+  ) : (
+    <div>please select a chat</div>
   )
 
   
@@ -532,38 +463,7 @@ const SendMessageIconButton = styled(ClipFileButton)``;
 const SendMessageIconIcon = styled(ClipFileIcon)``;
 
 const VoiceMainContainer = styled.div``;
-const VoiceTopDiv = styled.div`
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-`;
-const ProfileNameDiv = styled.div``;
-const AudioDetailDiv = styled.div`
-    display: flex;
-`;
-const AudioTime = styled.p``;
-const AudioSize = styled.p``;
-const VoiceBottomDiv = styled.div`
-    display: flex;
-    padding: 10px;
-    align-items: center;
-`;
-const VoicePlayBtnDiv = styled.div`
-    width: 20px;
-    padding: 10px;
-    border-radius: 50%;
-    background-color: #6887ef;
-    margin-right: 10px
-`;
-const VoiceWaveDiv = styled.div`
-    flex: 1;
-`;
-const VoiceWave = styled.div`
-    width: 300px;
-`;
 
-const PlayIcon = styled.img``;
-const PauseIcon = styled.img``;
 
 const TextMessageDiv = styled.div``;
 const MessageText = styled.p``;

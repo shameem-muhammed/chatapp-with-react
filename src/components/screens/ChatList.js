@@ -6,39 +6,117 @@ import ChatBox from "./ChatBox";
 import ChatDetails from "./ChatDetails";
 import SearchIconSvg from '../../assets/icons/zoom-lens_1.svg'
 
-function ChatList() {
+function ChatList({chatConfig}) {
+  const [selectedUser, setSelectedUser] = useState(null);
+  let handleIndiviual = (id) => {
+    ChatListData.map((data) => {
+      if (data.id === id) {
+        data.isActive = true
+        setSelectedUser(data)
+      } else {
+        data.isActive = false
+      }
+    })
+  }
   let ChatProfile = () => {
-    return ChatListData.map((item) => (
-      <ProfileDiv>
-        <LinkDiv to="#">
-          <ProfileAvatar>
-            <Avatar src={item.avatar} alt="avatar" />
-          </ProfileAvatar>
-          <NameDiv>
-            <ProfileName>{item.name}</ProfileName>
-            <LastMessage>{item.lastMessage}</LastMessage>
-          </NameDiv>
-          <IncommingDiv>
-            <LastMeassageTime>4 m</LastMeassageTime>
-            
-            <MessageCountDiv>
-            {item.incomingmsgcount != 0 ? (
-              <MessageCount>
-                <Count>{item.incomingmsgcount}</Count>
-              </MessageCount>
-            ): ''}
-              <PinnedDiv>
-                {item.pinned ? (
-                  <PinnedIcon src={item.pinnedImage} alt="" />
-                ) : (
-                  ""
-                )}
-              </PinnedDiv>
-            </MessageCountDiv>
-          </IncommingDiv>
-        </LinkDiv>
-      </ProfileDiv>
-    ));
+    if(chatConfig == 'all') {
+      return ChatListData.map((item) => (
+        <ProfileDiv  onClick={() => handleIndiviual(item.id)}>
+          <LinkDiv bgColor={item.isActive ? '#2e343d': ''} to="#">
+            <ProfileAvatar>
+              <Avatar src={item.avatar} alt="avatar" />
+            </ProfileAvatar>
+            <NameDiv>
+              <ProfileName>{item.name}</ProfileName>
+              <LastMessage>{item.lastMessage}</LastMessage>
+            </NameDiv>
+            <IncommingDiv>
+              <LastMeassageTime>4 m</LastMeassageTime>
+              
+              <MessageCountDiv>
+              {item.incomingmsgcount != 0 ? (
+                <MessageCount>
+                  <Count>{item.incomingmsgcount}</Count>
+                </MessageCount>
+              ): ''}
+                <PinnedDiv>
+                  {item.pinned ? (
+                    <PinnedIcon src={item.pinnedImage} alt="" />
+                  ) : (
+                    ""
+                  )}
+                </PinnedDiv>
+              </MessageCountDiv>
+            </IncommingDiv>
+          </LinkDiv>
+        </ProfileDiv>
+      ));
+    } else if (chatConfig == 'seend') {
+      return ChatListData.filter((data) => data.incomingmsgcount == 0).map((item) => (
+        <ProfileDiv onClick={() => handleIndiviual(item.id)}>
+          <LinkDiv bgColor={item.isActive ? '#2e343d': ''} to="#">
+            <ProfileAvatar>
+              <Avatar src={item.avatar} alt="avatar" />
+            </ProfileAvatar>
+            <NameDiv>
+              <ProfileName>{item.name}</ProfileName>
+              <LastMessage>{item.lastMessage}</LastMessage>
+            </NameDiv>
+            <IncommingDiv>
+              <LastMeassageTime>4 m</LastMeassageTime>
+              
+              <MessageCountDiv>
+              {item.incomingmsgcount != 0 ? (
+                <MessageCount>
+                  <Count>{item.incomingmsgcount}</Count>
+                </MessageCount>
+              ): ''}
+                <PinnedDiv>
+                  {item.pinned ? (
+                    <PinnedIcon src={item.pinnedImage} alt="" />
+                  ) : (
+                    ""
+                  )}
+                </PinnedDiv>
+              </MessageCountDiv>
+            </IncommingDiv>
+          </LinkDiv>
+        </ProfileDiv>
+      ))
+    } else if (chatConfig == 'unseen') {
+      return ChatListData.filter((data) => data.incomingmsgcount !== 0).map((item) => (
+        <ProfileDiv onClick={() => handleIndiviual(item.id)}>
+          <LinkDiv bgColor={item.isActive ? '#2e343d': ''} to="#">
+            <ProfileAvatar>
+              <Avatar src={item.avatar} alt="avatar" />
+            </ProfileAvatar>
+            <NameDiv>
+              <ProfileName>{item.name}</ProfileName>
+              <LastMessage>{item.lastMessage}</LastMessage>
+            </NameDiv>
+            <IncommingDiv>
+              <LastMeassageTime>4 m</LastMeassageTime>
+              
+              <MessageCountDiv>
+              {item.incomingmsgcount != 0 ? (
+                <MessageCount>
+                  <Count>{item.incomingmsgcount}</Count>
+                </MessageCount>
+              ): ''}
+                <PinnedDiv>
+                  {item.pinned ? (
+                    <PinnedIcon src={item.pinnedImage} alt="" />
+                  ) : (
+                    ""
+                  )}
+                </PinnedDiv>
+              </MessageCountDiv>
+            </IncommingDiv>
+          </LinkDiv>
+        </ProfileDiv>
+      ))
+    }
+    
   };
   return (
     <>
@@ -55,7 +133,7 @@ function ChatList() {
     </MainList>
     </UserListSection>
     
-      <ChatBox />
+      <ChatBox selectedUser={selectedUser} />
       <ChatDetails />
 
     </>
@@ -94,6 +172,8 @@ const LinkDiv = styled(NavLink)`
   justify-content: space-around;
   text-decoration: none;
   border-radius: 10px;
+  background-color: ${({bgColor}) => bgColor};
+
   &:hover {
     background-color: #2e343d;
   }
