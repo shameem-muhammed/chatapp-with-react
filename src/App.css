@@ -49,9 +49,368 @@ img {
 
 button {
   cursor: pointer;
+  background: none;
+  border: none;
+}
+
+ul {
+  list-style: none;
 }
 
 
-#waveform > wave:not(:nth-child(2)) {
-  display: none !important;
+.toggle-navigation {
+  background-color: #2e333d !important;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+#loading-main {
+  background-color: #2e333d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background-image: url('./assets/icons/chat-2.png');
+  background-repeat: no-repeat;
+  background-size: 200px;
+  background-position: center center;
+
+}
+
+#media-gallery {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,.5);
+  z-index: 10;
+}
+
+.close-icon {
+  width: 50px;
+  
+}
+
+.close-icon-div {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.media-file-image {
+  width: 200px;
+  height: 80%;
+  margin-right: 20px;
+}
+
+.media-file-list {
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: scroll;
+}
+
+.media-file-list-div {
+  display: flex;
+  justify-content: center;
+}
+
+.mediafile-img {
+  width:  100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+#settings-div {
+  position: absolute;
+  bottom: 10px;
+  left: 80px;
+  background-color: #131313;
+  width: 120px;
+  border-radius: 10px 10px 10px 0;
+  z-index: 10;
+  padding: 10px;
+}
+
+.settings-item:hover {
+  /* border: 1px solid black; */
+  background-color: #2e343d;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.settings-item > button {
+  color: white;
+  font-weight: bold;
+}
+
+
+#user-settings-div {
+  position: absolute;
+  top: 100%;
+  left: 60%;
+  background-color: #131313;
+  width: 120px;
+  border-radius: 10px;
+  z-index: 10;
+  padding: 10px;
+
+}
+
+#add-files-main-div {
+  position: absolute;
+  bottom: 100%;
+  left: 10%;
+  background-color: #131313;
+  width: 120px;
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 10;
+}
+
+#sendmedia-maincontainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,.5);
+  z-index: 10;
+}
+
+.sendmedia-secondcontainer {
+  /* width: 500px; */
+  /* height: 500px; */
+  background-color: #131313;
+  color: white;
+  padding: 10px;
+}
+
+.sendmedia-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selected-item-div > img {
+  width: 400px;
+  height: 300px;
+  object-fit: contain;
+}
+
+.selected-item-div > video {
+  width: 400px;
+  height: 300px;
+  object-fit: contain;
+}
+
+.middle {
+  position: relative;
+}
+
+.sendmedia-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.caption-input {
+  width: 80%;
+}
+
+.caption-input > input {
+  width: 100%;
+  background: none;
+  border: none;
+}
+
+.send-div > button {
+  color: white;
+  background-color: #6b8afd;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.close-btn-div  {
+  width: 40px;
+}
+
+.emoji-icon-div {
+  width: 30px;
+}
+
+.emoji-mart-div {
+  position: absolute;
+  bottom: 0;
+}
+
+#threedot-settings-div {
+  position: absolute;
+  top: 10%;
+  right: 2%;
+  background-color: #131313;
+  width: 120px;
+  border-radius: 10px;
+  z-index: 10;
+  padding: 10px;
+}
+
+
+#login-page-maincontainer {
+  height: 100vh;
+  width: 100vw;
+  background-image: url('./assets/images/login-page-bg.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginpage-subcontainer, .signup-secondcontainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 600px;
+  height: 400px;
+  background-color: rgba(0,0,0,.5);
+  border-radius: 10px;
+  padding: 20px;
+
+}
+
+.login-titlediv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  height: 30%;
+  margin-bottom: 10px;
+}
+
+.signup-titlediv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  height: 20%;
+  margin-bottom: 10px;
+}
+
+.login-titlediv > h3 {
+  font-size: 40px;
+}
+
+.login-formdiv, .signup-formdiv {
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.login-formdiv > form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 150px;
+}
+
+.signup-formdiv > form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 250px;
+}
+
+.login-formdiv > form > input {
+  height: 50px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 0 10px;
+}
+
+.signup-formdiv > form > input {
+  height: 50px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  padding: 0 10px;
+}
+
+.submit-button {
+  display: flex;
+  justify-content: center;
+}
+
+.submit-button > button  {
+  background-color: #6b8afd;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.login-to-signup-div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.login-to-signup-div > p {
+  color: white;
+  margin-right: 5px;
+  margin-bottom: 10px;
+
+}
+
+.login-to-signup-div > a {
+  background-color: #6b8afd;
+  padding: 5px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+}
+
+
+#signup-page-maincontainer {
+  height: 100vh;
+  width: 100vw;
+  background-image: url('./assets/images/signup-page-bg.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-choose-div {
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+  justify-content: space-around;
+  color: white;
+}
+
+.file-choose-div > label {
+  margin-bottom: 10px;
+}
+
+.file-choosen-button {
+  width: 60px;
+  height: 60px;
+  /* padding: 10px; */
+  background-color: #fff;
+  border-radius: 50%;
+  margin-bottom: 10px;
+
+}
+
+.file-choosen-button > img {
+  object-fit: cover;
+  height: 60px;
+  border-radius: 50%;
+
 }
