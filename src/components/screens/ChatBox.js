@@ -22,9 +22,10 @@ import LoadingScreen from '../includes/LoadingScreen'
 import AddFiles from '../includes/AddFiles';
 import SendMediaFile from '../includes/SendMediaFile';
 import ThreeDotSettings from '../includes/ThreeDotSettings';
-import { doc, getDoc, arrayUnion, updateDoc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, getDoc, arrayUnion, updateDoc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
 import {auth, db, database} from '../includes/FireBase'
 import {ref, set, child, get } from "firebase/database";
+import {v4 as uuidv4} from 'uuid';
 
 
 
@@ -33,7 +34,7 @@ function ChatBox({selectedUser, chatBoxData}) {
     const [rerender, setRerender] = useState(false);
     let [textMsg, setTextMsg] = useState('')
     let [load, setLoad] = useState(false)
-    let [toEnd, setToEnd] = useState(false)
+    const [uploadStatus, setUploadStatus] = useState(null)
     let [record, setRecord] = useState(false)
     let [render, setRender] = useState(false)
     let [showDetails, setShowDetails] = useState(false)
@@ -55,28 +56,35 @@ function ChatBox({selectedUser, chatBoxData}) {
     const fetchChatData = async () => {
 
           onSnapshot(doc(db, "chats", chatBoxData), (doc) => {
-            console.log(doc.data());
             setChatDetails(doc.data());
-            chatListRef.current.scrollIntoView({behavior:"smooth", block: 'end'})
+
 
             setRender(true)
-            chatListRef.current.scrollIntoView({behavior:"smooth", block: 'end'})
+
+            chatListRef.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"})
+            
+
 
 
         });
 
         get(child(ref(database), `userchats/${chatBoxData}`)).then( async (snapshot) => {
             if (snapshot.exists()) {
-                console.log(snapshot.val().lastmessage)
                 
                 setMessagesComing(snapshot.val().lastmessage)
-                chatListRef.current.scrollIntoView({behavior:"smooth", block: 'end'})
+                chatListRef.current.scrollIntoView({block: "end", inline: "end", behavior: "smooth"})
 
                 if(snapshot.val().lastmessage) {
-                    const userchatRef = doc(db, "userchats", chatBoxData);
+                    var today = new Date();
                     
-                    await updateDoc(userchatRef, {
-                        lastmessage: snapshot.val().lastmessage,
+                    await updateDoc(doc(db, "userchats", auth.currentUser.uid), {
+                        [chatBoxData+".lastmessage"]: snapshot.val().lastmessage,
+                        [chatBoxData+".date"]: serverTimestamp()
+                    });
+
+                    await updateDoc(doc(db, "userchats", selectedUser.uid), {
+                        [chatBoxData+".lastmessage"]: snapshot.val().lastmessage,
+                        [chatBoxData+".date"]: serverTimestamp()
                     });
 
                 }
@@ -100,16 +108,16 @@ function ChatBox({selectedUser, chatBoxData}) {
         fetchChatData()
         // renderChats()
 
-    }, [chatBoxData, load, render])
+    }, [render, chatBoxData, load])
 
 
     let handleClick = async () => {
         if(textMsg !== "") {
-            console.log(chatBoxData)
             const userchatRef = doc(db, "chats", chatBoxData);
             var today = new Date();
             await updateDoc(userchatRef, {
                 messages: arrayUnion({
+                    messageid: uuidv4(),
                     senderdata: {
                         name: auth.currentUser.displayName,
                         profilePic: auth.currentUser.photoURL,
@@ -122,7 +130,7 @@ function ChatBox({selectedUser, chatBoxData}) {
                     },
                     message: textMsg,
                     messagetype: 'text',
-                    timestamp: `${today.getHours()}:${today.getMinutes()}`
+                    timestamp: `${today.getDate()}-${today.getMonth()}-${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`
                 })
             });
             set(ref(database, 'userchats/' + chatBoxData), {
@@ -174,8 +182,6 @@ function ChatBox({selectedUser, chatBoxData}) {
                     <RightMessageSection style={{marginRight: chat.senderdata.useruid == auth.currentUser.uid ? '10px': '0px', borderRadius: chat.senderdata.useruid == auth.currentUser.uid ? '20px 20px 0px 20px': '', backgroundColor: chat.senderdata.useruid == auth.currentUser.uid ? '#6b8afd' : ''}}>
                         {chat.messagetype == 'image' ? (
                             <>
-                                <ProfileName>{chat.senderdata.useruid == auth.currentUser.uid ? chat.senderdata.name : chat.recieverdata.name}</ProfileName>
-
                                 <ChatImageDiv>
                                     <Link to={chat.message} target='_blank'>
                                         <ChatImage src={chat.message} alt='image'/>
@@ -184,7 +190,7 @@ function ChatBox({selectedUser, chatBoxData}) {
                             </>
                             
                         ) : chat.messagetype == 'voice' ? (
-                            <WaveformComponent audioUrl={chat.message} chatUserName={chat.user} audioId={chat.id} playFunc={chat.isPlaying} isPlayingFunc={() => {
+                            <WaveformComponent combainedId={chatBoxData} audioUrl={chat.message} audioId={chat.messageid} playFunc={chat.isPlaying} isPlayingFunc={() => {
                                 setRerender(!rerender)
                             }} /> 
                             
@@ -225,7 +231,7 @@ function ChatBox({selectedUser, chatBoxData}) {
                     }
                         
                         <MessageStatusDiv>
-                            <span>⏱️{chat.timestamp}</span>
+                            <span>{chat.timestamp}⏱️</span>
                         </MessageStatusDiv>
                     </RightMessageSection>
                 </ChatItem>
@@ -237,39 +243,46 @@ function ChatBox({selectedUser, chatBoxData}) {
     <MainContainer>
         {
             selectedUser ? (
-
-                <TopSection>
-                    <LeftSection>
-                        {
-                            selectedUser ? (
-                                <>
-                                    <LogoDiv>
-                                        <LogoIcon src={selectedUser.profilePic} alt="profil picture" />
-                                    </LogoDiv>
-                                    <ChatName>{selectedUser ? selectedUser.name : null}</ChatName>
-                                </>
-                            )  : null
-                        }
-                        
-                    </LeftSection>
-                    <RightSection>
-                        <LenIconButton>
-                            <CommonIcon src={LenIcon} alt='lens'/>
-                        </LenIconButton>
-                        <CallIconDiv>
-                            <CommonIcon src={CallIcon} alt='call'/>
-                        </CallIconDiv>
-                        <SplitIconDiv>
-                            <CommonIcon src={SplitIcon} alt='split'/>
-                        </SplitIconDiv>
-                        <ThreeIconDiv onClick={() => setOpenChatSettings(!openChatSettings)}>
-                            <CommonIcon src={ThreeDot} alt='threedots'/>
+                <>
+                    <TopSection>
+                        <LeftSection>
                             {
-                                openChatSettings ? <ThreeDotSettings openChatDetails={() => setShowDetails(!showDetails)} /> : null
+                                selectedUser ? (
+                                    <>
+                                        <LogoDiv>
+                                            <LogoIcon src={selectedUser.profilePic} alt="profil picture" />
+                                        </LogoDiv>
+                                        <ChatName>{selectedUser ? selectedUser.name : null}</ChatName>
+                                    </>
+                                )  : null
                             }
-                        </ThreeIconDiv>
-                    </RightSection>
-                </TopSection>
+                            
+                        </LeftSection>
+                        <RightSection>
+                            <LenIconButton>
+                                <CommonIcon src={LenIcon} alt='lens'/>
+                            </LenIconButton>
+                            <CallIconDiv>
+                                <CommonIcon src={CallIcon} alt='call'/>
+                            </CallIconDiv>
+                            <SplitIconDiv>
+                                <CommonIcon src={SplitIcon} alt='split'/>
+                            </SplitIconDiv>
+                            <ThreeIconDiv onClick={() => setOpenChatSettings(!openChatSettings)}>
+                                <CommonIcon src={ThreeDot} alt='threedots'/>
+                                {
+                                    openChatSettings ? <ThreeDotSettings openChatDetails={() => setShowDetails(!showDetails)} /> : null
+                                }
+                            </ThreeIconDiv>
+                        </RightSection>
+                    </TopSection>
+                    <div style={{position: 'absolute'}}>
+                        {
+                            uploadStatus ? <div>{uploadStatus}</div> : null
+                        }
+                    </div>
+                </>
+                
             ) : null
         }
         <ChatBoxSection hieghtDiv={`${containerHieght}%`}>
@@ -309,7 +322,7 @@ function ChatBox({selectedUser, chatBoxData}) {
                         {/* <SendVoiceButton>
                             <SendVoiceIcon src={MicIcon} alt='voice-icon' />
                         </SendVoiceButton> */}
-                        <ExampleComponent renderRecord={() => {
+                        <ExampleComponent reRender={() => setLoad(!load)} selectedUser={selectedUser} uploadStatus={(status) => setUploadStatus(status)} combainedId={chatBoxData} renderRecord={() => {
                             setLoad(!load)
                         }} isRecord={(data) => {setRecord(data)}} />
                     </SendVoiceDiv>
@@ -323,7 +336,7 @@ function ChatBox({selectedUser, chatBoxData}) {
         showDetails ? <ChatDetails showDetails={() => setShowDetails(!showDetails)} /> : null
     }
     {
-        selectedFile ? <SendMediaFile selectedItem={selectedFile} clearSelectedItem={() => setSelectedFile(null)} /> : null
+        selectedFile ? <SendMediaFile uploadStatus={(status) => setUploadStatus(status)} reRender={() => setLoad(!load)} combainedId={chatBoxData} selectedUser={selectedUser} selectedItem={selectedFile} clearSelectedItem={() => setSelectedFile(null)} /> : null
     }
 
     
@@ -431,7 +444,8 @@ const RightMessageSection = styled.div`
     background-color: #2e343d;
     padding: 10px;
     border-radius: 20px 30px 20px 0;
-    width: 150px;
+    min-width: 200px;
+    max-width: 450px;
 `;
 const ProfileName = styled.p`
     margin-bottom: 10px;

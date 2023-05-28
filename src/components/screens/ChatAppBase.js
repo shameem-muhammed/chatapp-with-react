@@ -35,7 +35,7 @@ function ChatAppBase() {
   return (
     <MainContainer>
         <SideBar chatFilter={(data) => {setChatType(data)}}/>
-        <ChatList chatConfig={chatType} />
+        <ChatList currentUser={auth.currentUser} chatConfig={chatType} />
     </MainContainer>
   ) 
 }

@@ -3,36 +3,34 @@ import WaveSurfer from "wavesurfer.js";
 import styled from "styled-components";
 import ChatMessages from "../../data/ChatMessages";
 import { json } from "react-router-dom";
+import { doc, getDocs, updateDoc, getDoc, setDoc, query, where } from "firebase/firestore";
+import {auth, db, database} from '../includes/FireBase'
+
 
 const WaveformComponent = ({
   audioUrl,
-  chatUserName,
   audioId,
   playFunc,
   isPlayingFunc,
+  combainedId
 }) => {
   const waveformRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(null);
-
+  
   const togglePlayPause = () => {
-    ChatMessages.filter((data) => data.messagetype == "voice").map((data) => {
-      if (data.id != audioId) {
-        data.wave.pause();
-        data.isPlaying = false;
-      }
+   
+    waveformRef.current.playPause()
+    if(waveformRef.current.isPlaying()) {
+      setIsPlaying(waveformRef.current)
 
-      if (data.id == audioId) {
-        data.isPlaying = !data.isPlaying;
-        if (data.wave.isPlaying()) {
-          data.wave.pause();
-        } else {
-          data.wave.play();
-        }
-      }
-    });
+    } else {
+      setIsPlaying(null)
+    }
+    
 
     isPlayingFunc();
   };
+
 
   useEffect(() => {
     const wavesurfer = WaveSurfer.create({
@@ -47,13 +45,9 @@ const WaveformComponent = ({
       barGap: 3,
       // Additional WaveSurfer configuration options...
     });
+    console.log(isPlaying)
     wavesurfer.load(audioUrl);
     waveformRef.current = wavesurfer;
-
-    ChatMessages.filter((data) => data.id == audioId).map((data) => {
-      data.wave = wavesurfer;
-    });
-
     return () => {
       wavesurfer.destroy();
     };
@@ -61,14 +55,8 @@ const WaveformComponent = ({
 
   if (waveformRef.current !== null) {
     waveformRef.current.on("finish", function () {
-      ChatMessages.filter((data) => data.messagetype == "voice").map((data) => {
-  
-        if (data.id == audioId) {
-          data.isPlaying = false;
-          data.wave.stop();
-           
-        }
-      });
+      waveformRef.current.stop()
+      setIsPlaying(null)
   
       isPlayingFunc();
     });
@@ -77,9 +65,6 @@ const WaveformComponent = ({
   return (
     <VoiceMainContainer>
       <VoiceTopDiv>
-        <ProfileNameDiv>
-          <ProfileName>{chatUserName}</ProfileName>
-        </ProfileNameDiv>
         <AudioDetailDiv>
           <AudioTime>10,</AudioTime>
           <AudioSize>{10} Mb</AudioSize>
@@ -87,7 +72,7 @@ const WaveformComponent = ({
       </VoiceTopDiv>
       <VoiceBottomDiv>
         <VoicePlayBtnDiv onClick={() => togglePlayPause()}>
-          {playFunc ? (
+          {isPlaying == waveformRef.current && isPlaying !==null ? (
             <PlayIcon
               src={require("../../assets/icons/pause.png")}
               alt="play/puase"

@@ -6,13 +6,13 @@ import ChatBox from "./ChatBox";
 import PinImage from '../..//assets/icons/office-push-pin.svg'
 import SearchIconSvg from '../../assets/icons/zoom-lens_1.svg'
 import UserSettings from "../includes/UserSettings";
-import { doc, getDocs, collection, setDoc, getDoc, updateDoc, query, orderBy, onSnapshot, where, serverTimestamp } from "firebase/firestore";
+import { doc, getDocs, collection, setDoc, getDoc, updateDoc, query, orderBy, onSnapshot, where, serverTimestamp, Firestore } from "firebase/firestore";
 import {auth, db, database} from '../includes/FireBase'
 import { useEffect } from "react";
-import {ref, set, getDatabase } from "firebase/database";
+import {ref, set, getDatabase, orderByChild } from "firebase/database";
 
 
-function ChatList({chatConfig}) {
+function ChatList({chatConfig, currentUser}) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [chatBoxdata, setChatBoxdata] = useState(null);
   const [userSettings, setUserSettings] = useState(null);
@@ -24,23 +24,33 @@ function ChatList({chatConfig}) {
 
 
   useEffect(() => {
-    const getChats = () => {
-      const unsub = onSnapshot(doc(db, "userchats", auth.currentUser.uid), (doc) => {
+  
+    const getChats = async () => {
+      
+      const userRef = doc(db, "userchats", auth.currentUser.uid)
+      const unsub = onSnapshot(userRef, (doc) => {
+       
         setUserList(doc.data())
-  
+          
         });
-  
+
       setRerender(!render)
+
+      return () => {
+        unsub()
+      }
+      
+  
     
-        return () => {
-          unsub()
-        }
+        
     }
 
-    auth.currentUser.uid && getChats()
+    currentUser && getChats()
 
 
-  }, [auth.currentUser.uid])
+  }, [currentUser])
+
+  
 
   let handleSearch = async (event) => {
     if (event.key == 'Enter') {
@@ -49,7 +59,7 @@ function ChatList({chatConfig}) {
 
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        if(doc.exists) {
+        if(doc.exists()) {
           res.push(doc.data())
 
         } else {
@@ -57,7 +67,13 @@ function ChatList({chatConfig}) {
         }
         // doc.data() is never undefined for query doc snapshots
       });
-      setSearchList(res)
+      if(res !== null) {
+        setSearchList(res)
+
+      } else {
+        console.log("no user found")
+      }
+      
     }
 
     // console.log(userList)
@@ -65,6 +81,7 @@ function ChatList({chatConfig}) {
   }
 
   let selectUser = (event, userid, userinfo) => {
+    event.preventDefault()
     // const combainid = auth.currentUser.uid > user ? auth.currentUser.uid + user.useruid : user.useruid + auth.currentUser.uid
     if (event.button === 0) { // Check if left mouse button is clicked
       // Left click logic goes here
@@ -135,6 +152,12 @@ function ChatList({chatConfig}) {
         [combainid+".date"]: serverTimestamp(),
       });
 
+      setTimeout(() => {
+        setSearchUser("")
+        setSearchList([])
+        
+      }, 1000);
+
     } 
   } catch(err) {
     console.log(err)
@@ -184,7 +207,7 @@ function ChatList({chatConfig}) {
 
   let ChatProfile = () => {
     if(chatConfig == 'all') {
-      return Object.entries(userList)?.map((item) => (
+      return Object.entries(userList)?.sort((a,b) => a[1].date - b[1].date).reverse().map((item) => (
         <ProfileDiv className="userprofile-div" id={item[0]} key={item[0]} onContextMenu={(event) => handleContextMenu(event, item[0])}  onClick={(event) => selectUser(event, item[0], item[1].userInfo)}>
           <LinkDiv to="#">
             <ProfileAvatar>
@@ -192,10 +215,10 @@ function ChatList({chatConfig}) {
             </ProfileAvatar>
             <NameDiv>
               <ProfileName>{item[1].userInfo.name}</ProfileName>
-              <LastMessage>{item.lastmessage}</LastMessage>
+              <LastMessage>{item[1].lastmessage}</LastMessage>
             </NameDiv>
             <IncommingDiv>
-              <LastMeassageTime>4 m</LastMeassageTime>
+              <LastMeassageTime>4m</LastMeassageTime>
               
               <MessageCountDiv>
               {item.incomingcount !== 0 ? (
@@ -421,6 +444,7 @@ const SearchInput = styled.input`
   width: 100%;
   height: 30px;
   padding-left: 30px;
+  border-radius: 10px;
 `;
 
 
