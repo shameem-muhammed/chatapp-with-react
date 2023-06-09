@@ -3,8 +3,15 @@ import { useState } from 'react'
 import ChatMessages from '../../data/ChatMessages'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
+import { doc, getDoc, arrayUnion, updateDoc, onSnapshot, setDoc, serverTimestamp } from "firebase/firestore";
+import {auth, db, database, storage} from '../includes/FireBase'
+import {ref, set, child, get } from "firebase/database";
+import { getDownloadURL, uploadBytesResumable, ref as sRef } from 'firebase/storage'
 
-function SendMediaFile({selectedItem, clearSelectedItem}) {
+
+
+
+function SendMediaFile({selectedItem, clearSelectedItem, selectedUser, combainedId, reRender, uploadStatus}) {
     const [closeContainer, setCloseContainer] = useState(true)
     const [showEmojiMart, setShowEmojiMart] = useState(false)
     const [selectedFileType, setSelectedFileType] = useState(null)
@@ -22,19 +29,67 @@ function SendMediaFile({selectedItem, clearSelectedItem}) {
         clearSelectedItem()
     }
 
-    let handleSendClick = () => {
-        let newData = {
-            id: ChatMessages.length + 1,
-            currentuser: true,
-            user: 'Shameem',
-            userprofile: require('../../assets/icons/man.png'),
-            messagetype: selectedFileType,
-            message: URL.createObjectURL(selectedItem),
-            viewed: 3,
-            sendtime: '08:57'
-        }
+    let handleSendClick = async () => {
+        console.log(selectedItem.name)
+        const storageRef = sRef(storage);
+        const imagesRef = sRef(storageRef, combainedId);
+        const spaceRef = sRef(imagesRef, selectedItem.name);
+        const uploadTask = uploadBytesResumable(spaceRef, selectedItem);
 
-        ChatMessages.push(newData)
+        uploadTask.on('state_changed', (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            uploadStatus('Upload is ' + progress + '% done')
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+            case 'paused':
+                console.log('Upload is paused');
+                break;
+            case 'running':
+                console.log('Upload is running');
+                break;
+            }
+        },
+        (error) => {
+            console.log(error)
+        },
+        () => {
+            uploadStatus(null)
+            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadUrl) => {
+                console.log(downloadUrl)
+                const userchatRef = doc(db, "chats", combainedId);
+                var today = new Date();
+                await updateDoc(userchatRef, {
+                    messages: arrayUnion({
+                        senderdata: {
+                            name: auth.currentUser.displayName,
+                            profilePic: auth.currentUser.photoURL,
+                            useruid: auth.currentUser.uid
+                        },
+                        recieverdata: {
+                            name: selectedUser.name,
+                            profilePic: selectedUser.profilePic,
+                            useruid: selectedUser.uid
+                        },
+                        message: downloadUrl,
+                        messagetype: selectedFileType,
+                        timestamp: `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()} ${today.getHours()}:${today.getMinutes()}`
+                    })
+                });
+                set(ref(database, 'userchats/' + combainedId), {
+                    uid: combainedId,
+                    lastmessage: "📷 image",
+                })
+                .then(() => {
+                    reRender()
+                    // Data saved successfully!
+                })
+                .catch((error) => {
+                    // The write failed...
+                });
+            })
+        }
+        )
+
         setCloseContainer(false)
         clearSelectedItem()
 

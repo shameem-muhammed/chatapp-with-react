@@ -28,12 +28,10 @@ function Signup() {
           .then(() => {
             getDownloadURL(uploadTask.snapshot.ref).then(
               async (downloadURL) => {
-                console.log("File available at", downloadURL);
                 await updateProfile(user.user, {
                   displayName: name,
                   photoURL: downloadURL,
                 });
-                console.log("next section");
                 await setDoc(doc(db, "users", user.user.uid), {
                   uid: user.user.uid,
                   name: name,
