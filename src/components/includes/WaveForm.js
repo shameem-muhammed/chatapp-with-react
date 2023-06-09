@@ -31,6 +31,13 @@ const WaveformComponent = ({
     isPlayingFunc();
   };
 
+  const addWaveFile = async (wavefile) => {
+    console.log(typeof(wavefile))
+    await setDoc(doc(db, "voicemessages", audioId), {
+      wavefile
+    });
+  }
+
 
   useEffect(() => {
     const wavesurfer = WaveSurfer.create({
@@ -48,6 +55,7 @@ const WaveformComponent = ({
     console.log(isPlaying)
     wavesurfer.load(audioUrl);
     waveformRef.current = wavesurfer;
+    wavesurfer && addWaveFile(wavesurfer)
     return () => {
       wavesurfer.destroy();
     };
@@ -64,12 +72,7 @@ const WaveformComponent = ({
 
   return (
     <VoiceMainContainer>
-      <VoiceTopDiv>
-        <AudioDetailDiv>
-          <AudioTime>10,</AudioTime>
-          <AudioSize>{10} Mb</AudioSize>
-        </AudioDetailDiv>
-      </VoiceTopDiv>
+      
       <VoiceBottomDiv>
         <VoicePlayBtnDiv onClick={() => togglePlayPause()}>
           {isPlaying == waveformRef.current && isPlaying !==null ? (

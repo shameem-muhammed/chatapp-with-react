@@ -6,10 +6,10 @@ import ChatBox from "./ChatBox";
 import PinImage from '../..//assets/icons/office-push-pin.svg'
 import SearchIconSvg from '../../assets/icons/zoom-lens_1.svg'
 import UserSettings from "../includes/UserSettings";
-import { doc, getDocs, collection, setDoc, getDoc, updateDoc, query, orderBy, onSnapshot, where, serverTimestamp, Firestore } from "firebase/firestore";
+import { doc, getDocs, collection, setDoc, getDoc, updateDoc, query, onSnapshot, where, serverTimestamp } from "firebase/firestore";
 import {auth, db, database} from '../includes/FireBase'
 import { useEffect } from "react";
-import {ref, set, getDatabase, orderByChild } from "firebase/database";
+import {ref, set } from "firebase/database";
 
 
 function ChatList({chatConfig, currentUser}) {
